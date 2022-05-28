@@ -1,0 +1,164 @@
+#include <iostream>
+#include <windows.h>
+#include <cstdio>
+#include <stdlib.h>
+#include <conio.h>
+#include <cstring>
+#include <string>
+
+using namespace std;
+
+void leftStep(int& cursor);
+void rightStep(int& cursor);
+void home(int& cursor);
+void endButtom(int& cursor, int last);
+
+void gotoxy( int column, int line);
+
+void insertChar(char l, int& cursor,int& last_element, char* arr);
+
+int main()
+{
+    // Color of the console
+    HANDLE console_color;
+    console_color = GetStdHandle(
+        STD_OUTPUT_HANDLE);
+
+    SetConsoleTextAttribute(console_color, 11);
+
+    int insertButton = 0;
+    int ar_size;
+
+    cout<<"Line Editor Program \n"<<endl;
+    cout<<"Enter the line length. Max(50): ";
+    cin>> ar_size;
+
+    char* arrayStore;
+    arrayStore = new char[ar_size];
+    int counter = 0;
+    int last_element = 0;
+    char ch;
+    while (counter < ar_size)
+    {
+        ch = getch();
+        if (ch == -32)
+        {
+            ch = getch();
+            switch(ch)
+            {
+            case 77:
+                rightStep(counter);
+                break;
+            case 75:
+                leftStep(counter);
+                break;
+            case 71:
+                home(counter);
+                break;
+            case 79:
+                endButtom(counter, last_element);
+                break;
+            case 82:
+                if (insertButton == 0)
+                {
+                    insertButton = 1;
+                } else {
+                    insertButton = 0;
+                }
+
+                break;
+            }
+            continue;
+
+        }else if (ch == 13) //enter key
+        {
+            cout<<"\n You Entered: "<<endl;
+            for (int i = 0; i < last_element; i++)
+            {
+
+                cout<<arrayStore[i];
+            }
+
+        }else if (ch == 27) //escape key
+        {
+            cout<<"Terminating...."<<endl;
+            return 0;
+        }
+
+        else {
+            if (insertButton == 0){
+                if (last_element == counter){
+                SetConsoleTextAttribute(console_color, 10);
+                last_element +=1;
+                }else if (counter < last_element)
+                {
+                    SetConsoleTextAttribute(console_color, 7);
+                }
+                cout<<ch;
+                arrayStore[counter] = ch;
+                counter +=1;
+            } else {
+                insertChar(ch, counter, last_element, arrayStore);
+                gotoxy(0, 3);
+                for (int x = 0; x <last_element; x++){
+                    cout<<arrayStore[x];
+                }
+                gotoxy(cursor, 3);
+            }
+
+        }
+    }
+
+    return 0;
+}
+
+void insertChar(char l, int& cursor,int& last_element, char* arr)
+{
+    for (int i = last_element + 1; i > cursor ; i--)
+    {
+        arr[i] = arr[i - 1];
+    }
+    // insert x at pos
+    arr[cursor] = l;
+    last_element +=1;
+    cursor = cursor;
+}
+void deleteChar(int& cursor,int& last_element, char* arr)
+{
+
+}
+
+void gotoxy( int column, int line )
+{
+  COORD coord;
+  coord.X = column;
+  coord.Y = line;
+  SetConsoleCursorPosition(GetStdHandle( STD_OUTPUT_HANDLE ), coord);
+}
+
+void leftStep(int& cursor)
+{
+    if (cursor >0)
+    {
+        cursor -= 1;
+        gotoxy(cursor, 3);
+    }
+}
+
+void rightStep(int& cursor)
+{
+    cursor += 1;
+    gotoxy(cursor, 3);
+}
+
+void home(int& cursor)
+{
+    cursor = 0;
+    gotoxy(cursor, 3);
+}
+
+void endButtom(int& cursor, int last)
+{
+    cursor = last - 1;
+    gotoxy(cursor, 3);
+}
